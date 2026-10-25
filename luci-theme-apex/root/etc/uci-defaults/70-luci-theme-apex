@@ -1,0 +1,10 @@
+#!/bin/sh
+# Register the theme so it shows up in LuCI's "Language and Style" selector.
+# Runs once on first boot or package install.
+
+uci -q batch <<-EOF2
+	set luci.themes.Apex=/luci-static/apex
+	commit luci
+EOF2
+
+exit 0

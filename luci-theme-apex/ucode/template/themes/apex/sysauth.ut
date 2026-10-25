@@ -1,0 +1,139 @@
+{#
+ luci-theme-apex - sysauth.ut
+ Copyright (C) 2026 Pr0Luci
+ SPDX-License-Identifier: GPL-2.0-only
+
+ Branded login page. Same dispatcher contract as the stock sysauth template:
+ POSTs luci_username / luci_password to the requested URL; the dispatcher owns
+ credential checking, the session cookie, timeout, redirect and logging. The
+ template scope provides only `duser` (default user) and `fuser` (the user
+ name of a failed attempt), so no other variables are used here.
+
+ Rendered chrome-less (`blank_page`): this template supplies the brand
+ panel / mobile header band, card and status footer itself (no top bar -
+ the panel and card use the full viewport height). Layout is
+ pure CSS (login.css); login.js only reveals the show-password toggle.
+ Reuses luci-base msgids where they exist; new strings are plain English
+ msgids.
+
+ Note: the password field deliberately has no `required` attribute - an
+ empty root password is a valid state on a fresh router.
+-#}
+{% include('header', { blank_page: true }) %}
+{%
+	const secure = http.getenv('HTTPS') == 'on';
+	const ver    = trim(`${version?.distname ?? ''} ${version?.distversion ?? ''}`);
+%}
+
+<div class="al">
+	<div class="al-body">
+		<aside class="al-side">
+			<div class="al-logo">
+				<span class="al-mark" aria-hidden="true">C</span>
+				<b class="al-word">Clean<em>WRT</em></b>
+			</div>
+
+			<div class="al-side-extra">
+				<p class="al-headline">{{ _('Your home network, now with a phone line.') }}</p>
+				<p class="al-desc">{{ _('Built on OpenWrt for the Arcadyan AW1000.') }}</p>
+
+				<div class="al-hero">
+					<span class="al-hero-ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+					<div class="al-hero-txt">
+						<div class="al-hero-top">
+							<b class="al-hero-name">{{ _('AWvoice™') }}</b>
+							<span class="al-chip"><span class="al-chip-dot" aria-hidden="true"></span>{{ _('Now live') }}</span>
+						</div>
+						<p class="al-hero-body">{{ _('A real phone port, built into your router. Plug in any landline handset and call over 5G - no extra box.') }}</p>
+					</div>
+				</div>
+
+				<p class="al-sidecap">{{ _('Also on board') }}</p>
+				<ul class="al-feats">
+					<li>
+						<span class="al-feat-ic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></span>
+						<b>{{ entityencode(_('Firewall & Adblock')) }}</b>
+					</li>
+					<li>
+						<span class="al-feat-ic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 12h18M15 6l6 6-6 6"/></svg></span>
+						<b>{{ _('WireGuard VPN') }}</b>
+					</li>
+					<li>
+						<span class="al-feat-ic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 14l4-5"/></svg></span>
+						<b>{{ _('Smart QoS') }}</b>
+					</li>
+				</ul>
+
+				<div class="al-dev">
+					<svg width="78" height="122" viewBox="0 0 120 190" fill="none" aria-hidden="true" focusable="false">
+						<defs><linearGradient id="al-router-body" x1="0" x2="1"><stop offset="0" stop-color="#dad7cf"/><stop offset=".4" stop-color="#fff"/><stop offset="1" stop-color="#cfcbc0"/></linearGradient></defs>
+						<ellipse cx="60" cy="184" rx="52" ry="4" fill="#000" opacity=".35"/>
+						<rect x="14" y="10" width="92" height="170" rx="10" fill="url(#al-router-body)"/>
+						<g font-family="JetBrains Mono, monospace" font-size="5" fill="#8a8778">
+							<circle cx="36" cy="54" r="1.8" fill="#3fa66b"/><text x="44" y="56">POWER</text>
+							<circle cx="36" cy="66" r="1.8" fill="#3fa66b"/><text x="44" y="68">5G</text>
+							<circle cx="36" cy="78" r="1.8" fill="#3fa66b"/><text x="44" y="80">WIFI</text>
+							<circle cx="36" cy="90" r="1.8" fill="#3fa66b"/><text x="44" y="92">INTERNET</text>
+							<circle cx="36" cy="102" r="1.8" fill="#3fa66b"/><text x="44" y="104">PHONE</text>
+						</g>
+						<text x="60" y="152" text-anchor="middle" font-family="Inter, sans-serif" font-weight="600" font-size="9" fill="#1f1f1e">CleanWRT</text>
+					</svg>
+					<div class="al-mdl">{{ _('MODEL') }}<b>Arcadyan AW1000</b></div>
+				</div>
+			</div>
+		</aside>
+
+		<main class="al-main">
+			<form method="post" class="al-card" aria-labelledby="al-title">
+				<h1 class="al-title" id="al-title">{{ _('Authorization Required') }}</h1>
+				<p class="al-sub">{{ _('Please enter your username and password.') }}</p>
+
+				{% if (fuser): %}
+				<div class="al-alert" id="al-error" role="alert">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3L2 20h20z"/><path d="M12 10v5"/><path d="M12 17.5v.01"/></svg>
+					<span>{{ _('Invalid username and/or password! Please try again.') }}</span>
+				</div>
+				{% endif %}
+
+				<div class="al-field">
+					<label class="al-label" for="luci_username">{{ _('Username') }}</label>
+					<div class="al-in">
+						<input class="al-input" type="text" id="luci_username" name="luci_username" value="{{ entityencode(duser, true) }}" autocomplete="username" autocapitalize="none" spellcheck="false" />
+					</div>
+				</div>
+
+				<div class="al-field">
+					<label class="al-label" for="luci_password">{{ _('Password') }}</label>
+					<div class="al-in">
+						<input class="al-input" type="password" id="luci_password" name="luci_password" autocomplete="current-password" autocapitalize="none" spellcheck="false" autofocus{% if (fuser): %} aria-invalid="true" aria-describedby="al-error"{% endif %} />
+						<button class="al-eye" type="button" data-al-reveal aria-controls="luci_password" aria-pressed="false" aria-label="{{ _('Show password') }}" hidden>
+							<svg class="al-ic-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+							<svg class="al-ic-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>
+						</button>
+					</div>
+				</div>
+
+				<button type="submit" class="al-btn">{{ _('Log in') }}</button>
+
+				{% if (secure): %}
+				<div class="al-note">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>
+					<span>{{ _('Encrypted connection') }}</span>
+				</div>
+				{% else %}
+				<div class="al-note al-note--warn">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>
+					<span>{{ _('Not encrypted - use HTTPS') }}</span>
+				</div>
+				{% endif %}
+			</form>
+		</main>
+	</div>
+
+	<footer class="al-foot">
+		<span>CleanWRT · © 2026 Pr0Luci</span>
+		<span>{{ entityencode(ver) }}{% if (version?.luciversion): %} · LuCI {{ entityencode(version.luciversion) }}{% endif %}</span>
+	</footer>
+</div>
+
+{% include('footer', { blank_page: true }) %}

@@ -1,0 +1,555 @@
+/*
+ * luci-theme-apex - login.css
+ * Copyright (C) 2026 Pr0Luci
+ * SPDX-License-Identifier: GPL-2.0-only
+ *
+ * Loaded ONLY by the blank-page header (themes/apex/sysauth). Self-contained:
+ * it does not depend on cascade.css. Mobile-first: the base rules are the
+ * 390 px phone layout; min-width queries add tablet (600) and desktop (1024).
+ * Dark default, light via prefers-color-scheme or data-theme (same pattern as cascade.css).
+ * Fonts (Inter, JetBrains Mono - SIL OFL 1.1) are self-hosted; see
+ * THIRD-PARTY-NOTICES.md.
+ */
+
+/* ------------------------------ fonts ------------------------------ */
+
+@font-face {
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 400 700;
+	font-display: swap;
+	src: url("fonts/inter-latin-var.woff2") format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: 'JetBrains Mono';
+	font-style: normal;
+	font-weight: 400 600;
+	font-display: swap;
+	src: url("fonts/jetbrains-mono-latin-var.woff2") format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------ tokens ------------------------------ */
+
+:root {
+	--al-page:    #0e1114;
+	--al-card:    #12161a;
+	--al-bar:     #12161a;
+	--al-hair:    #2e363f;
+	--al-field:   #8b95a1;
+	--al-inbg:    #0e1114;
+	--al-text:    #e6eaee;
+	--al-muted:   #a3adb8;
+	--al-link:    #2dd4bf;
+	--al-focus:   #2dd4bf;
+	--al-acc:     #14b8a6;
+	--al-accink:  #0b1f1d;
+	--al-errbg:   #2a1514;
+	--al-errb:    #f87171;
+	--al-errt:    #fca5a5;
+	--al-wbg:     #2a2011;
+	--al-wb:      #d97706;
+	--al-wt:      #fcd34d;
+
+	/* brand panel - identical in both schemes */
+	--al-pbg:     #0b1f1d;
+	--al-pt:      #ffffff;
+	--al-pm:      #9cc4be;
+	--al-pf:      #cfe6e2;
+	--al-pi:      #2dd4bf;
+	--al-phair:   rgba(255, 255, 255, 0.14);
+
+	--al-font: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+	--al-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Light scheme: OS setting unless the user forced dark; explicit via the theme toggle
+   (data-theme on <html>, shared with the authenticated UI). Keep both blocks identical. */
+@media (prefers-color-scheme: light) {
+	:root:not([data-theme="dark"]) {
+		--al-page:   #f3f4f6;
+		--al-card:   #ffffff;
+		--al-bar:    #eaecef;
+		--al-hair:   #d1d5db;
+		--al-field:  #6b7280;
+		--al-inbg:   #ffffff;
+		--al-text:   #111418;
+		--al-muted:  #4b5563;
+		--al-link:   #0f766e;
+		--al-focus:  #0f766e;
+		--al-errbg:  #fef2f2;
+		--al-errb:   #b91c1c;
+		--al-errt:   #991b1b;
+		--al-wbg:    #fffbeb;
+		--al-wb:     #b45309;
+		--al-wt:     #92400e;
+	}
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+	--al-page:   #f3f4f6;
+	--al-card:   #ffffff;
+	--al-bar:    #eaecef;
+	--al-hair:   #d1d5db;
+	--al-field:  #6b7280;
+	--al-inbg:   #ffffff;
+	--al-text:   #111418;
+	--al-muted:  #4b5563;
+	--al-link:   #0f766e;
+	--al-focus:  #0f766e;
+	--al-errbg:  #fef2f2;
+	--al-errb:   #b91c1c;
+	--al-errt:   #991b1b;
+	--al-wbg:    #fffbeb;
+	--al-wb:     #b45309;
+	--al-wt:     #92400e;
+}
+
+:root[data-theme="dark"] { color-scheme: dark; }
+
+/* ------------------------------ base ------------------------------ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body.al-login-page {
+	margin: 0;
+	background: var(--al-page);
+	color: var(--al-text);
+	font-family: var(--al-font);
+	font-size: 14px;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+.al {
+	min-height: 100vh;
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+}
+
+/* ------------------------------ body / brand panel ------------------------------ */
+
+.al-body {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+/* below 1024 px the panel is a slim header band holding only the logo */
+.al-side {
+	position: relative;
+	flex: none;
+	height: 56px;
+	display: flex;
+	align-items: center;
+	padding: 0 16px;
+	overflow: hidden;
+	background: var(--al-pbg);
+	color: var(--al-pf);
+}
+.al-side > * { position: relative; z-index: 1; }
+
+.al-logo { display: flex; align-items: center; gap: 10px; }
+.al-mark {
+	width: 28px;
+	height: 28px;
+	display: grid;
+	place-items: center;
+	border-radius: 3px;
+	background: var(--al-acc);
+	color: var(--al-accink);
+	font: 700 15px/1 var(--al-font);
+}
+.al-word {
+	font: 600 18px/1 var(--al-font);
+	letter-spacing: -0.01em;
+	color: var(--al-pt);
+}
+.al-word em { font-style: normal; color: var(--al-pi); }
+
+.al-side-extra { display: none; }
+
+/* ------------------------------ sign-in card ------------------------------ */
+
+.al-main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	padding: 24px 16px;
+}
+
+.al-card {
+	width: 100%;
+	background: var(--al-card);
+	border: 1px solid var(--al-hair);
+	padding: 24px 16px 20px;
+}
+
+.al-title {
+	margin: 0 0 6px;
+	font: 600 22px/1.25 var(--al-font);
+	letter-spacing: -0.015em;
+	color: var(--al-text);
+}
+.al-sub {
+	margin: 0 0 24px;
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--al-muted);
+}
+
+.al-alert {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+	margin-bottom: 16px;
+	padding: 10px 12px;
+	background: var(--al-errbg);
+	border: 1px solid var(--al-errb);
+	color: var(--al-errt);
+	font: 500 13px/1.45 var(--al-font);
+}
+.al-alert svg { flex: none; margin-top: 1px; }
+
+.al-field { margin-bottom: 16px; }
+
+.al-label {
+	display: block;
+	margin: 0 0 8px;
+	font: 600 12px/1.3 var(--al-mono);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--al-muted);
+}
+
+.al-in { position: relative; }
+
+/* 16 px on touch layouts stops iOS zooming the page on focus */
+.al-input {
+	display: block;
+	width: 100%;
+	height: 44px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid var(--al-field);
+	border-radius: 0;
+	background: var(--al-inbg);
+	color: var(--al-text);
+	font: 400 16px/1 var(--al-mono);
+	-webkit-appearance: none;
+	appearance: none;
+}
+.al-input:focus {
+	border-color: var(--al-focus);
+	outline: 2px solid var(--al-focus);
+	outline-offset: 1px;
+}
+/* an errored field keeps its error border even while focused (it is
+   autofocused after a failed attempt); the focus outline stays visible */
+.al-input[aria-invalid="true"],
+.al-input[aria-invalid="true"]:focus { border-color: var(--al-errb); }
+
+/* keep browser autofill legible in both schemes */
+.al-input:-webkit-autofill,
+.al-input:-webkit-autofill:focus {
+	-webkit-text-fill-color: var(--al-text);
+	caret-color: var(--al-text);
+	box-shadow: 0 0 0 100px var(--al-inbg) inset;
+}
+
+/* show-password toggle: revealed by login.js (hidden without JS) */
+.al-in--toggle .al-input { padding-right: 44px; }
+
+.al-eye {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 44px;
+	height: 44px;
+	display: grid;
+	place-items: center;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--al-muted);
+	cursor: pointer;
+}
+.al-eye[hidden] { display: none; }
+.al-eye:hover { color: var(--al-text); }
+.al-eye:focus-visible {
+	outline: 2px solid var(--al-focus);
+	outline-offset: -4px;
+}
+.al-eye .al-ic-off { display: none; }
+.al-eye[aria-pressed="true"] .al-ic-on { display: none; }
+.al-eye[aria-pressed="true"] .al-ic-off { display: block; }
+
+.al-btn {
+	display: block;
+	width: 100%;
+	height: 48px;
+	margin: 8px 0 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: var(--al-acc);
+	color: var(--al-accink);
+	font: 600 15px/1 var(--al-font);
+	cursor: pointer;
+}
+.al-btn:hover { filter: brightness(0.94); }
+.al-btn:active { filter: brightness(0.88); }
+.al-btn:focus-visible {
+	outline: 2px solid var(--al-focus);
+	outline-offset: 2px;
+}
+
+.al-note {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	justify-content: center;
+	margin-top: 20px;
+	font-size: 13px;
+	line-height: 1.4;
+	text-align: center;
+	color: var(--al-muted);
+}
+.al-note svg { flex: none; color: var(--al-link); }
+.al-note--warn {
+	justify-content: flex-start;
+	padding: 10px 12px;
+	background: var(--al-wbg);
+	border: 1px solid var(--al-wb);
+	color: var(--al-wt);
+	font-weight: 500;
+	text-align: left;
+}
+.al-note--warn svg { color: var(--al-wt); }
+
+/* ------------------------------ status footer ------------------------------ */
+
+.al-foot {
+	flex: none;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 10px 16px;
+	background: var(--al-bar);
+	border-top: 1px solid var(--al-hair);
+	font: 400 12px/1.4 var(--al-mono);
+	color: var(--al-muted);
+}
+
+/* ------------------------------ tablet (>= 600 px) ------------------------------ */
+
+@media (min-width: 600px) {
+	.al-side { padding: 0 32px; }
+
+	.al-main { padding: 72px 16px 32px; }
+
+	.al-card {
+		width: 460px;
+		max-width: 100%;
+		padding: 36px 36px 28px;
+	}
+	.al-title { font-size: 24px; }
+
+	.al-foot {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		padding: 10px 32px;
+	}
+}
+
+/* ------------------------------ desktop (>= 1024 px) ------------------------------ */
+
+@media (min-width: 1024px) {
+	.al-body {
+		display: grid;
+		grid-template-columns: 560px minmax(0, 1fr);
+	}
+
+	.al-side {
+		height: auto;
+		flex-direction: column;
+		align-items: stretch;
+		padding: 44px 48px 36px;
+		border-bottom: 0;
+	}
+	/* decorative rings */
+	.al-side::after {
+		content: "";
+		position: absolute;
+		right: -180px;
+		bottom: -200px;
+		width: 520px;
+		height: 520px;
+		border-radius: 50%;
+		border: 1px solid rgba(20, 184, 166, 0.25);
+		box-shadow: 0 0 0 60px rgba(20, 184, 166, 0.04), 0 0 0 120px rgba(20, 184, 166, 0.03);
+	}
+
+	.al-side-extra {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+	}
+
+	.al-headline {
+		max-width: 400px;
+		margin: 56px 0 12px;
+		font: 600 34px/1.15 var(--al-font);
+		letter-spacing: -0.025em;
+		color: var(--al-pt);
+	}
+	.al-desc {
+		max-width: 400px;
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.55;
+		color: var(--al-pm);
+	}
+
+	/* AWvoice hero - the phone line is the headline feature */
+	.al-hero {
+		display: flex;
+		gap: 14px;
+		max-width: 400px;
+		margin: 32px 0 0;
+		padding: 16px;
+		border: 1px solid rgba(45, 212, 191, 0.45);
+		background: rgba(45, 212, 191, 0.08);
+	}
+	.al-hero-ic {
+		width: 36px;
+		height: 36px;
+		flex: none;
+		display: grid;
+		place-items: center;
+		border: 1px solid var(--al-pi);
+		color: var(--al-pi);
+	}
+	.al-hero-txt { min-width: 0; }
+	.al-hero-top {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px 12px;
+		align-items: center;
+	}
+	.al-hero-name {
+		font-size: 15px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		color: var(--al-pt);
+	}
+	.al-chip {
+		display: inline-flex;
+		gap: 6px;
+		align-items: center;
+		font: 600 10px/1 var(--al-mono);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--al-pi);
+	}
+	.al-chip-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #3fa66b;
+	}
+	.al-hero-body {
+		margin: 6px 0 0;
+		font-size: 13px;
+		line-height: 1.5;
+		color: var(--al-pf);
+	}
+
+	.al-sidecap {
+		margin: 24px 0 0;
+		font: 600 11px/1 var(--al-mono);
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--al-pm);
+	}
+	.al-feats {
+		display: grid;
+		gap: 12px;
+		margin: 12px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	.al-feats li {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		font-size: 13px;
+		line-height: 1.45;
+	}
+	.al-feats b {
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--al-pt);
+	}
+	.al-feat-ic {
+		width: 32px;
+		height: 32px;
+		flex: none;
+		display: grid;
+		place-items: center;
+		border: 1px solid var(--al-pi);
+		color: var(--al-pi);
+	}
+
+	.al-dev {
+		margin-top: auto;
+		display: flex;
+		align-items: flex-end;
+		gap: 24px;
+		padding-top: 24px;
+		border-top: 1px solid var(--al-phair);
+	}
+	.al-dev svg { flex: none; }
+	.al-mdl {
+		padding-bottom: 6px;
+		font: 400 12px/1.4 var(--al-mono);
+		color: var(--al-pm);
+	}
+	.al-mdl b {
+		display: block;
+		margin-top: 4px;
+		font: 600 16px/1.4 var(--al-font);
+		color: var(--al-pt);
+	}
+
+	.al-main { align-items: center; padding: 24px; }
+
+	.al-card {
+		width: 400px;
+		padding: 32px 30px 24px;
+	}
+	.al-input { font-size: 14px; }
+
+	.al-foot { padding: 8px 16px; }
+}
+
+/* ------------------------------ forced colors (Windows high contrast) ------------------------------ */
+
+@media (forced-colors: active) {
+	.al-btn { border: 1px solid ButtonText; }
+	.al-card, .al-alert, .al-note--warn { border-color: CanvasText; }
+	.al-hero { border-color: CanvasText; }
+}

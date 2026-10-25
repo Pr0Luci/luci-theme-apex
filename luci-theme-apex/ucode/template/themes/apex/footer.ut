@@ -1,0 +1,22 @@
+{#
+ luci-theme-apex - footer.ut
+ Copyright (C) 2026 Pr0Luci
+ SPDX-License-Identifier: GPL-2.0-only
+
+ Closes the containers opened by header.ut (#maincontent, #ax-layout),
+ renders the status footer, and closes the document. With the standard
+ `blank_page` include variable (login page) header.ut opened no containers
+ and the page supplies its own footer, so only the document is closed.
+-#}
+{% if (!blank_page): %}
+	</main>
+</div>
+
+<footer id="ax-footer">
+	<span>CleanWRT · © 2026 Pr0Luci</span>
+	<span class="ax-ver">{{ entityencode(trim(`${version?.distname ?? ''} ${version?.distversion ?? ''}`)) }}{% if (version?.luciversion): %} · LuCI {{ entityencode(version.luciversion) }}{% endif %}</span>
+</footer>
+{% endif %}
+
+</body>
+</html>

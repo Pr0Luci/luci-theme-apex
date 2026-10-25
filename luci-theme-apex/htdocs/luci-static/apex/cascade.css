@@ -1,0 +1,2089 @@
+/*
+ * luci-theme-apex - cascade.css
+ * Copyright (C) 2026 Pr0Luci
+ * SPDX-License-Identifier: GPL-2.0-only
+ *
+ * Apex - dense, technical dark theme.
+ * Dark by default, light via prefers-color-scheme, or forced with data-theme
+ * on <html> (the theme toggle). Accent teal #14b8a6.
+ * System font stack, monospace for technical values. Colour pairs are WCAG AA;
+ * a 390px viewport is a first-class target.
+ * Ships as committed (LUCI_MINIFY_CSS:=0).
+ */
+
+/* ============================== tokens ============================== */
+
+:root {
+	--ax-bg:            #0e1114;
+	--ax-bg-side:       #0a0d10;
+	--ax-card:          #12161a;
+	--ax-card2:         #171c21;
+	--ax-input-bg:      #0b0e11;
+	--ax-fg:            #dde3e8;
+	--ax-muted:         #98a1ab;
+	--ax-border:        #21272e;
+	--ax-border-strong: #2e363f;
+	--ax-accent:        #14b8a6;
+	--ax-accent-text:   #2dd4bf;
+	--ax-accent-dim:    rgba(20, 184, 166, 0.12);
+	--ax-focus:         var(--ax-accent-text);   /* focus indicators: AA-safe teal (>= 3:1 on cards, both schemes) */
+	--ax-accent-hover:  #2dd4bf;
+	--ax-ink-on-accent: #04211d;
+	--ax-ok:            #34d399;
+	--ax-warn:          #fbbf24;
+	--ax-err:           #f87171;
+	--ax-shadow:        0 10px 30px rgba(0, 0, 0, 0.45);
+	/* tonal button (page action bar Save & Apply): fg/bg pairs >= 4.5:1 at rest and hover */
+	--ax-tonal-bg:       rgba(20, 184, 166, 0.16);
+	--ax-tonal-bg-hover: rgba(20, 184, 166, 0.24);
+	--ax-tonal-fg:       #2dd4bf;
+	--ax-tonal-line:     rgba(45, 212, 191, 0.35);
+	--ax-track:          #5f6b77;   /* unfilled range track: >= 3:1 on cards (3.34) and page (3.48) */
+	--ax-font:          system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+	--ax-mono:          ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	--ax-r:             3px;
+	--ax-topbar-h:      44px;
+	--ax-side-w:        212px;
+}
+
+/* Light scheme. Automatic (OS setting) unless the user forced dark; explicit via the
+   theme toggle (data-theme on <html>, set by the inline script in header.ut and
+   apex.js). The two light blocks MUST stay identical. */
+@media (prefers-color-scheme: light) {
+	:root:not([data-theme="dark"]) {
+		--ax-bg:            #f3f4f6;
+		--ax-bg-side:       #e9ebee;
+		--ax-card:          #ffffff;
+		--ax-card2:         #f6f7f9;
+		--ax-input-bg:      #ffffff;
+		--ax-fg:            #191d21;
+		--ax-muted:         #59626c;
+		--ax-border:        #d3d8dd;
+		--ax-border-strong: #b9c0c8;
+		--ax-accent:        #14b8a6;
+		--ax-accent-text:   #0f766e;
+		--ax-accent-dim:    rgba(20, 184, 166, 0.14);
+		--ax-accent-hover:  #0e9f8f;
+		--ax-ok:            #047857;
+		--ax-warn:          #b45309;
+		--ax-err:           #b91c1c;
+		--ax-shadow:        0 10px 30px rgba(25, 32, 40, 0.18);
+		--ax-tonal-bg:       rgba(20, 184, 166, 0.14);
+		--ax-tonal-bg-hover: rgba(20, 184, 166, 0.22);
+		--ax-tonal-fg:       #0b5e57;
+		--ax-tonal-line:     rgba(11, 94, 87, 0.35);
+		--ax-track:          #7d8792;
+	}
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+	--ax-bg:            #f3f4f6;
+	--ax-bg-side:       #e9ebee;
+	--ax-card:          #ffffff;
+	--ax-card2:         #f6f7f9;
+	--ax-input-bg:      #ffffff;
+	--ax-fg:            #191d21;
+	--ax-muted:         #59626c;
+	--ax-border:        #d3d8dd;
+	--ax-border-strong: #b9c0c8;
+	--ax-accent:        #14b8a6;
+	--ax-accent-text:   #0f766e;
+	--ax-accent-dim:    rgba(20, 184, 166, 0.14);
+	--ax-accent-hover:  #0e9f8f;
+	--ax-ok:            #047857;
+	--ax-warn:          #b45309;
+	--ax-err:           #b91c1c;
+	--ax-shadow:        0 10px 30px rgba(25, 32, 40, 0.18);
+	--ax-tonal-bg:       rgba(20, 184, 166, 0.14);
+	--ax-tonal-bg-hover: rgba(20, 184, 166, 0.22);
+	--ax-tonal-fg:       #0b5e57;
+	--ax-tonal-line:     rgba(11, 94, 87, 0.35);
+	--ax-track:          #7d8792;
+}
+
+:root[data-theme="dark"] { color-scheme: dark; }
+
+/* =============================== base =============================== */
+
+* { box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+	margin: 0;
+	min-height: 100%;
+	background: var(--ax-bg);
+	color: var(--ax-fg);
+	font-family: var(--ax-font);
+	font-size: 13px;
+	line-height: 1.45;
+}
+
+a { color: var(--ax-accent-text); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3, h4, h5 {
+	font-weight: 650;
+	letter-spacing: -0.01em;
+	margin: 0 0 10px;
+	text-wrap: balance;
+}
+h2 { font-size: 17px; }
+h3 { font-size: 14px; margin-top: 18px; }
+h4 { font-size: 13px; }
+
+code, kbd, pre, .ax-path {
+	font-family: var(--ax-mono);
+	font-size: 11.5px;
+}
+
+pre {
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border);
+	border-radius: var(--ax-r);
+	padding: 10px 12px;
+	overflow-x: auto;
+}
+
+hr { border: 0; border-top: 1px solid var(--ax-border); margin: 14px 0; }
+
+::selection { background: var(--ax-accent-dim); color: var(--ax-fg); }
+
+:focus-visible {
+	outline: 2px solid var(--ax-focus);
+	outline-offset: 1px;
+}
+
+.hidden, [hidden], .d-none { display: none !important; }
+.left { text-align: left !important; }
+.right { text-align: right !important; }
+.center { text-align: center !important; }
+.inline { display: inline-block; }
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 1.2s !important;
+	}
+}
+
+/* ============================== topbar ============================== */
+
+#ax-topbar {
+	position: sticky;
+	top: 0;
+	z-index: 900;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	height: var(--ax-topbar-h);
+	padding: 0 14px;
+	background: var(--ax-bg-side);
+	border-bottom: 1px solid var(--ax-border);
+}
+
+#ax-menu-toggle {
+	display: none;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+	width: 34px;
+	height: 34px;
+	padding: 7px;
+	background: none;
+	border: 1px solid var(--ax-border);
+	border-radius: var(--ax-r);
+	cursor: pointer;
+}
+#ax-menu-toggle span {
+	display: block;
+	height: 2px;
+	background: var(--ax-fg);
+}
+
+.ax-brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--ax-fg);
+	font-weight: 700;
+	font-size: 14px;
+	letter-spacing: 0.01em;
+	white-space: nowrap;
+}
+.ax-brand:hover { text-decoration: none; }
+.ax-mark {
+	display: grid;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	flex: none;
+	border-radius: var(--ax-r);
+	background: var(--ax-accent);
+	color: var(--ax-ink-on-accent);
+	font-family: var(--ax-mono);
+	font-size: 13px;
+	font-weight: 800;
+}
+.ax-word b { color: var(--ax-accent-text); font-weight: 700; }
+
+.ax-path {
+	color: var(--ax-muted);
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border);
+	border-radius: 2px;
+	padding: 3px 8px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}
+
+/* never show an empty chip (defensive: no path resolved) */
+.ax-path:empty { display: none; }
+
+/* indicator chips (ui.showIndicator) */
+#indicators { display: inline-flex; gap: 6px; align-items: center; margin-left: auto; }
+#indicators span {
+	font-family: var(--ax-mono);
+	font-size: 10.5px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 2px 8px;
+	border-radius: 2px;
+	border: 1px solid var(--ax-accent);
+	color: var(--ax-accent-text);
+	cursor: pointer;
+	white-space: nowrap;
+}
+#indicators span[data-style="inactive"] {
+	border-color: var(--ax-border-strong);
+	color: var(--ax-muted);
+}
+
+/* light/dark theme toggle (revealed by apex.js; icon shows the target theme) */
+.ax-theme-toggle {
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: none;
+	border: 1px solid var(--ax-border);
+	border-radius: var(--ax-r);
+	color: var(--ax-muted);
+	cursor: pointer;
+}
+.ax-theme-toggle[hidden] { display: none; }
+.ax-theme-toggle:hover { color: var(--ax-fg); border-color: var(--ax-border-strong); }
+.ax-theme-toggle:focus-visible { outline: 2px solid var(--ax-focus); outline-offset: 2px; }
+.ax-theme-toggle[data-target="light"] .ax-ic-moon,
+.ax-theme-toggle[data-target="dark"] .ax-ic-sun { display: none; }
+
+/* ============================== layout ============================== */
+
+#ax-layout { display: flex; align-items: stretch; }
+
+#ax-sidebar {
+	flex: none;
+	width: var(--ax-side-w);
+	position: sticky;
+	top: var(--ax-topbar-h);
+	height: calc(100vh - var(--ax-topbar-h));
+	overflow-y: auto;
+	background: var(--ax-bg-side);
+	border-right: 1px solid var(--ax-border);
+	display: flex;
+	flex-direction: column;
+	padding: 12px 8px;
+}
+
+.ax-brand-side { padding: 2px 10px 12px; }
+.ax-brand-top { display: none; }
+
+#ax-navtree { flex: 1; }
+
+.ax-navcat {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 10px;
+	margin-top: 6px;
+	background: none;
+	border: 0;
+	color: var(--ax-muted);
+	font-family: var(--ax-mono);
+	font-size: 10.5px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.09em;
+	cursor: pointer;
+	text-align: left;
+}
+.ax-navcat::after {
+	content: "▸";
+	font-size: 9px;
+	transition: transform 0.15s;
+}
+.ax-navgroup[data-expanded="true"] > .ax-navcat::after { transform: rotate(90deg); }
+.ax-navcat:hover { color: var(--ax-fg); }
+
+.ax-navlist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.ax-navgroup[data-expanded="false"] > .ax-navlist { display: none; }
+
+.ax-navlink {
+	display: block;
+	padding: 5px 10px 5px 20px;
+	color: var(--ax-muted);
+	font-size: 12.5px;
+	border-left: 2px solid transparent;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.ax-navlink:hover { color: var(--ax-fg); text-decoration: none; }
+.ax-navlink.ax-active {
+	color: var(--ax-accent-text);
+	border-left-color: var(--ax-accent);
+	background: var(--ax-accent-dim);
+}
+.ax-navtop { padding-left: 10px; margin-top: 6px; font-weight: 600; }
+
+/* sidebar account block: who is signed in, and Log out */
+.ax-account {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 12px 10px 4px;
+	border-top: 1px solid var(--ax-border);
+}
+.ax-account-label {
+	font-family: var(--ax-mono);
+	font-size: 10.5px;
+	text-transform: uppercase;
+	letter-spacing: 0.09em;
+	color: var(--ax-muted);
+}
+.ax-account-user {
+	font-family: var(--ax-mono);
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--ax-fg);
+	overflow-wrap: anywhere;
+}
+.ax-account-logout {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 32px;
+	margin-top: 10px;
+	padding: 0 12px;
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	background: var(--ax-card2);
+	color: var(--ax-fg);
+	font-size: 12.5px;
+	font-weight: 600;
+}
+.ax-account-logout:hover {
+	border-color: var(--ax-accent);
+	color: var(--ax-accent-text);
+	text-decoration: none;
+}
+
+#ax-backdrop { display: none; }
+
+#maincontent {
+	flex: 1;
+	min-width: 0;
+	padding: 16px 20px 90px;
+}
+
+#ax-footer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	justify-content: space-between;
+	padding: 9px 16px;
+	border-top: 1px solid var(--ax-border);
+	background: var(--ax-bg-side);
+	color: var(--ax-muted);
+	font-family: var(--ax-mono);
+	font-size: 10.5px;
+}
+
+/* view container + load spinner */
+#view { position: relative; }
+
+.spinning {
+	position: relative;
+	padding-left: 22px !important;
+	color: var(--ax-muted);
+}
+.spinning::before {
+	content: "";
+	position: absolute;
+	left: 2px;
+	top: 50%;
+	width: 12px;
+	height: 12px;
+	margin-top: -8px;
+	border: 2px solid var(--ax-border-strong);
+	border-top-color: var(--ax-accent);
+	border-radius: 50%;
+	animation: ax-spin 0.6s linear infinite;
+}
+@keyframes ax-spin { to { transform: rotate(360deg); } }
+
+/* ======================== cbi maps & sections ======================= */
+
+.cbi-map { margin-bottom: 18px; }
+
+.cbi-map > h2, #maincontent > h2, .cbi-map > .cbi-title {
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--ax-border);
+}
+
+.cbi-map-descr, .cbi-section-descr {
+	color: var(--ax-muted);
+	font-size: 12px;
+	margin: 0 0 12px;
+	max-width: 78ch;
+}
+
+.cbi-section {
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border);
+	border-radius: var(--ax-r);
+	margin: 0 0 14px;
+	padding: 12px 14px;
+	overflow-x: auto;
+}
+/* A section holding inline hover tooltips (port / network boxes) must not be a
+   scroll container: the tooltip opens below its box, i.e. outside the card, and
+   overflow would clip it and show a scrollbar. Such sections hold wrapping boxes,
+   not wide tables. Browsers without :has() keep the previous behaviour. */
+.cbi-section:has(.cbi-tooltip-container) { overflow: visible; }
+.cbi-section > h3:first-child { margin-top: 0; }
+/* Card title - ONE look everywhere: the "Base Information" look
+   (h2: 17 px / 650 / -0.01em, sentence case). A card title is the first heading of
+   a .cbi-section, a .panel-title (an h2 in QModem Information, a span in the SMS
+   page) or a <legend> that is the section's only title. Later headings in the same
+   card are sub-headings and keep their own (smaller) sizes. */
+.cbi-section > :is(h2, h3):first-child,
+.cbi-section > .panel-title,
+.cbi-section > legend:not(:has(+ :is(h1, h2, h3, h4, .panel-title))) {
+	display: block;
+	margin: 0 0 10px;
+	padding: 0;
+	font-family: inherit;
+	font-size: 17px;
+	font-weight: 650;
+	line-height: inherit;
+	letter-spacing: -0.01em;
+	text-transform: none;
+	color: var(--ax-fg);
+}
+/* a legend is only an in-flow title if it is taken out of the fieldset border
+   notch: the Bootstrap 5 legend technique (float + full width, then clear) */
+.cbi-section > legend:not(:has(+ :is(h1, h2, h3, h4, .panel-title))) {
+	float: left;
+	width: 100%;
+}
+.cbi-section > legend + * { clear: left; }
+/* Some views (luci-app-qmodem modem_info, the SMS page) print the card title twice:
+   <legend>TITLE</legend> immediately followed by <h2/h3 or .panel-title>TITLE. Stock themes
+   hide legends; here the legend is a label, so a legend that is directly followed
+   by a heading is a duplicate and is hidden visually only (the standard
+   visually-hidden pattern keeps the fieldset's accessible name). A legend with no
+   heading after it is the card's only title and stays visible. */
+.cbi-section > legend:has(+ :is(h1, h2, h3, h4, .panel-title)) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+fieldset { border: 0; margin: 0; padding: 0; }
+
+.cbi-section-node { border: 0; padding: 0; }
+
+/* option rows */
+.cbi-value {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	padding: 6px 0;
+	border-bottom: 1px solid var(--ax-border);
+}
+.cbi-value:last-child, .cbi-value.cbi-value-last { border-bottom: 0; }
+
+.cbi-value-title {
+	flex: 0 0 218px;
+	padding-top: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--ax-fg);
+	overflow-wrap: anywhere;
+}
+
+.cbi-value-field {
+	flex: 1;
+	min-width: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+.cbi-value-description {
+	color: var(--ax-muted);
+	font-size: 11.5px;
+	margin-top: 3px;
+}
+.cbi-value-description code { font-size: 10.5px; }
+
+.cbi-value-error input,
+input.cbi-input-invalid,
+select.cbi-input-invalid,
+.cbi-input-invalid {
+	border-color: var(--ax-err) !important;
+}
+
+.cbi-section-create, .cbi-section-remove { margin-top: 10px; }
+
+.cbi-optionals {
+	padding-top: 10px;
+	border-top: 1px solid var(--ax-border);
+}
+
+/* sticky action bar - sits at the end of the flow; nothing may render
+   below it, and #maincontent bottom padding keeps scrolled content clear */
+.cbi-page-actions {
+	position: sticky;
+	bottom: 0;
+	z-index: 800;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: flex-end;
+	margin: 14px -20px 0;
+	padding: 10px 20px;
+	background: var(--ax-bg-side);
+	border-top: 1px solid var(--ax-border);
+}
+/* some views (tailscale, dnsmasq filters) render content AFTER the
+   action bar - sticky would float it over that content mid-scroll */
+#view .cbi-page-actions:not(:last-child) { position: static; }
+
+/* ========================= buttons & inputs ========================= */
+
+.btn, .cbi-button, button {
+	font-family: var(--ax-font);
+}
+
+.btn, .cbi-button {
+	display: inline-block;
+	padding: 5px 14px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--ax-fg);
+	background: var(--ax-card2);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	cursor: pointer;
+	text-decoration: none;
+	white-space: nowrap;
+}
+/* an input followed by <br> and a button group (e.g. Local Time + Sync buttons)
+   would otherwise have the buttons flush against the field */
+.cbi-value-field > br + .control-group,
+.cbi-value-field > br + .cbi-button { margin-top: 8px; }
+
+.btn:hover, .cbi-button:hover {
+	border-color: var(--ax-muted);
+	text-decoration: none;
+}
+
+.cbi-button-apply, .cbi-button-save, .cbi-button-positive,
+.cbi-button-action.important, .btn.primary {
+	background: var(--ax-accent);
+	border-color: var(--ax-accent);
+	color: var(--ax-ink-on-accent);
+}
+.cbi-button-apply:hover, .cbi-button-save:hover, .cbi-button-positive:hover,
+/* hover keeps >= 4.5:1 for --ax-ink-on-accent text (light 5.14, dark 9.09);
+   --ax-accent-text as a background would be 3.09:1 in the light scheme */
+.cbi-button-action.important:hover, .btn.primary:hover {
+	background: var(--ax-accent-hover);
+	border-color: var(--ax-accent-hover);
+}
+
+.cbi-button-action, .cbi-button-add, .cbi-button-edit, .cbi-button-find,
+.cbi-button-link, .cbi-button-up, .cbi-button-down {
+	color: var(--ax-accent-text);
+	border-color: var(--ax-accent);
+	background: transparent;
+}
+
+.cbi-button-remove, .cbi-button-negative, .cbi-button-reset {
+	color: var(--ax-err);
+	border-color: var(--ax-err);
+	background: transparent;
+}
+
+.btn[disabled], .cbi-button[disabled],
+.btn.disabled, .cbi-button.disabled {
+	opacity: 0.45;
+	pointer-events: none;
+}
+
+/* ---- page action bar hierarchy --------------------------------
+   Save & Apply = tonal split button, Save = neutral, Reset = text-only red.
+   The split button is a .cbi-dropdown (form-field look): neutralised here, but
+   only in its closed state so the opened popup list keeps its own styles. */
+.cbi-page-actions .cbi-button-apply {
+	background: var(--ax-tonal-bg);
+	border-color: transparent;
+	color: var(--ax-tonal-fg);
+}
+.cbi-page-actions .cbi-button-apply:hover {
+	background: var(--ax-tonal-bg-hover);
+	border-color: transparent;
+}
+.cbi-page-actions .cbi-dropdown.cbi-button-apply {
+	min-width: 0;
+	padding: 0;
+	font-family: var(--ax-font);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.5;
+}
+.cbi-page-actions .cbi-dropdown.cbi-button-apply:focus-within,
+.cbi-page-actions .cbi-dropdown.cbi-button-apply[open] { border-color: transparent; }
+.cbi-page-actions .cbi-dropdown.cbi-button-apply:focus-visible {
+	outline: 2px solid var(--ax-tonal-fg);
+	outline-offset: 2px;
+}
+.cbi-page-actions .cbi-dropdown.cbi-button-apply:not([open]) > ul { padding: 0; min-height: 0; gap: 0; }
+.cbi-page-actions .cbi-dropdown.cbi-button-apply:not([open]) > ul > li {
+	padding: 5px 14px;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	border-radius: 0;
+}
+.cbi-page-actions .cbi-dropdown.cbi-button-apply:not([open]) > ul > li[selected] {
+	background: none;
+	color: inherit;
+}
+.cbi-page-actions .cbi-dropdown.cbi-button-apply > .open {
+	padding: 0 9px;
+	color: inherit;
+	border-left: 1px solid var(--ax-tonal-line);
+}
+/* Save is neutral next to an apply button (a lone Save stays the primary) */
+.cbi-page-actions:has(.cbi-button-apply) .cbi-button-save {
+	background: var(--ax-card2);
+	border-color: var(--ax-border-strong);
+	color: var(--ax-fg);
+}
+.cbi-page-actions:has(.cbi-button-apply) .cbi-button-save:hover {
+	background: var(--ax-card2);
+	border-color: var(--ax-muted);
+}
+.cbi-page-actions .cbi-button-reset { border-color: transparent; }
+.cbi-page-actions .cbi-button-reset:hover {
+	background: color-mix(in srgb, var(--ax-err) 8%, transparent);
+	border-color: transparent;
+}
+
+input[type="text"], input[type="password"], input[type="number"],
+input[type="email"], input[type="url"], input[type="search"],
+textarea, select, .cbi-input-text, .cbi-input-password, .cbi-input-select {
+	width: auto;
+	max-width: 100%;
+	padding: 4px 8px;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	color: var(--ax-fg);
+	/* background-color, NOT the shorthand: .cbi-input-select outranks the
+	   `select` chevron rule below and the shorthand would wipe its image */
+	background-color: var(--ax-input-bg);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+}
+textarea { width: 100%; font-size: 11.5px; line-height: 1.5; }
+
+/* form-row text inputs get a usable width (browser default ~170px is
+   too narrow for keys/paths); table-cell inputs keep their natural size */
+.cbi-value-field > input[type="text"],
+.cbi-value-field > input[type="password"] {
+	width: min(100%, 320px);
+}
+.cbi-value-field select { min-width: min(100%, 180px); }
+
+/* empty CBI form tables shrink-wrap to a sliver without rows - keep
+   the header row + placeholder at full section width */
+table.cbi-section-table { width: 100%; }
+
+input:focus, textarea:focus, select:focus {
+	outline: none;
+	border-color: var(--ax-focus);
+	box-shadow: 0 0 0 1px var(--ax-focus);
+}
+
+input[readonly], input[disabled], select[disabled], textarea[readonly] {
+	opacity: 0.55;
+}
+
+select, .cbi-input-select {
+	appearance: none;
+	-webkit-appearance: none;
+	padding-right: 22px;
+	background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='8'%20height='5'%3E%3Cpath%20d='M0%200l4%205%204-5z'%20fill='%238b939c'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+}
+
+input[type="checkbox"] {
+	accent-color: var(--ax-accent);
+	width: 14px;
+	height: 14px;
+}
+
+/* Material 3 radio button (slightly reduced: 18 px icon, 2 px ring, 8 px dot that
+   scales in, 36 px circular state layer (hover 8%, focus/pressed 10%), disabled at 38%.
+   Pure CSS on the native <input>, so ui.js/form.js markup and keyboard/label
+   behaviour are untouched. Ring/dot colours: --ax-muted (unselected) and
+   --ax-accent-text (selected, the M3 "primary" role), both >= 3:1 on the card in both schemes. The M3 focus
+   state layer is only 10%, so keyboard focus also gets a 2 px outline (3:1). */
+input[type="radio"] {
+	-webkit-appearance: none;
+	appearance: none;
+	flex: none;
+	width: 18px;
+	height: 18px;
+	margin: 0 14px 0 0;             /* clears the 40 px focus ring */
+	padding: 0;
+	vertical-align: middle;
+	border: 2px solid var(--ax-muted);
+	border-radius: 50%;
+	background: radial-gradient(circle closest-side, var(--ax-accent-text) 97%, transparent 100%) center / 0 0 no-repeat;
+	cursor: pointer;
+	transition: background-size 0.2s cubic-bezier(0.2, 0, 0, 1), border-color 0.2s, box-shadow 0.15s;
+}
+input[type="radio"]:checked {
+	border-color: var(--ax-accent-text);
+	background-size: 8px 8px;
+}
+/* Unwrapped markup (e.g. qmodem: <input radio><span>text</span><input radio>...):
+   the radio is not the first child, so give each following option a wider lead gap
+   than the radio->text gap (14 px) - otherwise a circle reads as belonging to the
+   previous word. Radios that are the first child of their <label> are unaffected. */
+input[type="radio"]:not(:first-child) { margin-left: 24px; }
+input[type="radio"]:hover:not(:disabled),
+label:hover > input[type="radio"]:not(:disabled) {
+	border-color: var(--ax-fg);
+	box-shadow: 0 0 0 9px color-mix(in srgb, var(--ax-fg) 8%, transparent);
+}
+input[type="radio"]:checked:hover:not(:disabled),
+label:hover > input[type="radio"]:checked:not(:disabled) {
+	border-color: var(--ax-accent-text);
+	box-shadow: 0 0 0 9px color-mix(in srgb, var(--ax-accent-text) 8%, transparent);
+}
+input[type="radio"]:active:not(:disabled) {
+	box-shadow: 0 0 0 9px color-mix(in srgb, var(--ax-fg) 10%, transparent);
+}
+input[type="radio"]:checked:active:not(:disabled) {
+	box-shadow: 0 0 0 9px color-mix(in srgb, var(--ax-accent-text) 10%, transparent);
+}
+input[type="radio"]:focus-visible {
+	outline: 2px solid var(--ax-accent-text);
+	outline-offset: 9px;            /* ring sits just outside the 36 px state layer */
+	box-shadow: 0 0 0 9px color-mix(in srgb, var(--ax-fg) 10%, transparent);
+}
+input[type="radio"]:checked:focus-visible {
+	box-shadow: 0 0 0 9px color-mix(in srgb, var(--ax-accent-text) 10%, transparent);
+}
+input[type="radio"]:disabled {
+	opacity: 0.38;
+	cursor: not-allowed;
+}
+
+/* the label is the touch target: row height 36 px (48 px on touch layouts) */
+label:has(> input[type="radio"]) {
+	display: inline-flex;
+	align-items: center;
+	min-height: 36px;
+	margin-right: 6px;
+	padding-right: 4px;
+	cursor: pointer;
+}
+label:has(> input[type="radio"]:disabled) { cursor: not-allowed; }
+
+@media (forced-colors: active) {
+	input[type="radio"] { border-color: ButtonText; }
+	input[type="radio"]:checked {
+		border-color: Highlight;
+		background-image: radial-gradient(circle closest-side, Highlight 97%, transparent 100%);
+	}
+}
+
+.cbi-checkbox label { color: var(--ax-muted); font-size: 12px; }
+
+/* ============================= dropdown ============================= */
+
+/* Closed state shows ONLY li[display] (set by ui.js on the selected /
+   previewed items); everything else stays hidden until [open]. */
+.cbi-dropdown {
+	display: inline-flex;
+	align-items: stretch;
+	position: relative;
+	min-width: 120px;
+	max-width: 100%;
+	padding: 0;
+	background: var(--ax-input-bg);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	cursor: pointer;
+	vertical-align: middle;
+}
+.cbi-dropdown:focus-within { border-color: var(--ax-focus); }
+
+.cbi-dropdown > ul {
+	flex: 1;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 2px;
+	list-style: none;
+	min-width: 0;
+	min-height: 22px;
+	overflow: hidden;
+}
+.cbi-dropdown > ul > li {
+	display: none;
+	align-items: center;
+	gap: 6px;
+	padding: 2px 7px;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	border-radius: 2px;
+	min-height: 20px;
+	min-width: 0;
+}
+.cbi-dropdown > ul > li[display] { display: flex; }
+.cbi-dropdown li img { flex: none; align-self: center; }
+.cbi-dropdown li label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+	margin: 0;
+}
+/* multi-select checkboxes belong in the open list only - the closed
+   preview chip shows just icon + name */
+.cbi-dropdown > ul > li > form { display: none; }
+.cbi-dropdown[open] > ul.dropdown > li > form { display: block; flex: none; }
+.cbi-dropdown li[placeholder], .cbi-dropdown li .hide-close { color: var(--ax-muted); }
+
+/* widgets.js device items: .hide-close parts (descriptions) show only in
+   the open list; .hide-open parts show only in the closed preview */
+.cbi-dropdown li .hide-close { display: none; }
+.cbi-dropdown[open] > ul.dropdown > li .hide-close { display: inline; }
+.cbi-dropdown[open] > ul.dropdown > li .hide-open { display: none; }
+
+.cbi-dropdown > .open, .cbi-dropdown > .more {
+	display: none;
+	align-items: center;
+	padding: 0 7px;
+	color: var(--ax-muted);
+	border-left: 1px solid var(--ax-border);
+	flex: none;
+}
+.cbi-dropdown > .open { display: flex; }
+.cbi-dropdown[more] > .more { display: flex; }
+/* nothing selected → ui.js flags [empty] and puts the placeholder text
+   into .more; without this the closed control renders as a blank box */
+.cbi-dropdown[empty] > .more {
+	display: flex;
+	flex: 1;
+	border-left: 0;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+}
+
+.cbi-dropdown[open] { border-color: var(--ax-accent); }
+.cbi-dropdown[open] > ul.dropdown {
+	position: absolute;
+	top: calc(100% + 2px);
+	left: -1px;
+	z-index: 1100;
+	display: block;
+	min-width: calc(100% + 2px);
+	max-width: 340px;
+	max-height: 230px;
+	overflow-y: auto;
+	background: var(--ax-card2);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	box-shadow: var(--ax-shadow);
+	padding: 3px;
+}
+.cbi-dropdown[open] > ul.dropdown > li {
+	display: flex;
+	padding: 4px 8px;
+	color: var(--ax-fg);
+	white-space: normal;
+}
+.cbi-dropdown[open] > ul.dropdown > li[selected],
+.cbi-dropdown > ul > li[selected] {
+	background: var(--ax-accent-dim);
+	color: var(--ax-accent-text);
+}
+.cbi-dropdown[open] > ul.dropdown > li.focus {
+	background: var(--ax-accent-dim);
+}
+.cbi-dropdown[open] > ul.dropdown > li:hover {
+	background: var(--ax-accent-dim);
+}
+
+.cbi-dropdown li[unselectable] { opacity: 0.45; }
+
+.cbi-dropdown .create-item-input {
+	flex: 1;
+	min-width: 90px;
+	border: 0;
+	background: none;
+	box-shadow: none;
+}
+
+/* ==================== dynamic lists & tab widgets =================== */
+/* (widgets that mostly live inside tab panes) */
+
+.cbi-dynlist {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	max-width: 420px;
+}
+.cbi-dynlist > .item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 9px;
+	background: var(--ax-card2);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	cursor: grab;
+	min-width: 0;
+}
+.cbi-dynlist > .item > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.cbi-dynlist > .item::after {
+	content: "✕";
+	flex: none;
+	font-size: 10px;
+	color: var(--ax-muted);
+}
+.cbi-dynlist > .item:hover { border-color: var(--ax-err); }
+.cbi-dynlist > .item:hover::after { color: var(--ax-err); }
+.cbi-dynlist > .item.flash { background: var(--ax-accent-dim); border-color: var(--ax-accent); }
+.cbi-dynlist > .item.dragging { opacity: 0.5; border-style: dashed; }
+.cbi-dynlist > .add-item {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	align-items: center;
+}
+.cbi-dynlist > .add-item > input { flex: 1; min-width: 140px; }
+.cbi-dynlist > .add-item > .cbi-button { flex: none; }
+
+/* range slider (ui.Slider) */
+.cbi-range-slider {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	max-width: 100%;
+}
+.cbi-range-slider input[type="range"] { flex: 1; min-width: 140px; max-width: 260px; }
+.cbi-range-slider-value,
+.cbi-range-slider-calc {
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	color: var(--ax-accent-text);
+	min-width: 3ch;
+}
+.cbi-range-slider-calc-units { color: var(--ax-muted); font-size: 11px; }
+/* Range slider. The native control only honours accent-color for the filled part;
+   the unfilled track is drawn by the browser (near-black in the light scheme), so
+   the track and thumb are styled explicitly with the standard vendor pseudo-elements
+   (separate rules: a vendor selector inside a list would invalidate the whole rule).
+   Fill: Firefox has ::-moz-range-progress; WebKit/Blink have no progress pseudo-element,
+   so apex.js mirrors value -> --ax-p (0..1) and the track paints the fill with a
+   hard-stop gradient (without JS the thumb still shows the value). Colours:
+   --ax-accent-text (fill/thumb, AA) and --ax-track (unfilled, >= 3:1). */
+input[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	height: 20px;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	cursor: pointer;
+	vertical-align: middle;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+	height: 4px;
+	border-radius: 2px;
+	background: linear-gradient(to right,
+		var(--ax-accent-text) calc(8px + (100% - 16px) * var(--ax-p, 0)),
+		var(--ax-track) 0);
+}
+input[type="range"]::-moz-range-track {
+	height: 4px;
+	border-radius: 2px;
+	background: var(--ax-track);
+}
+input[type="range"]::-moz-range-progress {
+	height: 4px;
+	border-radius: 2px;
+	background: var(--ax-accent-text);
+}
+input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 16px;
+	height: 16px;
+	margin-top: -6px;               /* centres the thumb on the 4 px track */
+	border: 0;
+	border-radius: 50%;
+	background: var(--ax-accent-text);
+	transition: box-shadow 0.15s;
+}
+input[type="range"]::-moz-range-thumb {
+	width: 16px;
+	height: 16px;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 50%;
+	background: var(--ax-accent-text);
+	transition: box-shadow 0.15s;
+}
+input[type="range"]:hover:not(:disabled)::-webkit-slider-thumb {
+	box-shadow: 0 0 0 6px color-mix(in srgb, var(--ax-accent-text) 12%, transparent);
+}
+input[type="range"]:hover:not(:disabled)::-moz-range-thumb {
+	box-shadow: 0 0 0 6px color-mix(in srgb, var(--ax-accent-text) 12%, transparent);
+}
+input[type="range"]:active:not(:disabled)::-webkit-slider-thumb {
+	box-shadow: 0 0 0 6px color-mix(in srgb, var(--ax-accent-text) 18%, transparent);
+}
+input[type="range"]:active:not(:disabled)::-moz-range-thumb {
+	box-shadow: 0 0 0 6px color-mix(in srgb, var(--ax-accent-text) 18%, transparent);
+}
+/* the generic input:focus rule (border + ring) would box the whole control */
+input[type="range"]:focus { border-color: transparent; box-shadow: none; }
+input[type="range"]:focus-visible {
+	outline: 2px solid var(--ax-focus, var(--ax-accent-text));
+	outline-offset: 4px;
+}
+input[type="range"]:disabled { opacity: 0.38; cursor: not-allowed; }
+@media (forced-colors: active) {
+	input[type="range"] { -webkit-appearance: auto; appearance: auto; }
+}
+
+/* checkbox frame (ui.Checkbox) */
+.cbi-checkbox { display: inline-flex; align-items: center; gap: 6px; }
+.cbi-checkbox label { cursor: pointer; }
+
+/* file upload + inline file browser */
+.cbi-fileupload-select, .cbi-fileupload-cancel {
+	font-size: 12px;
+	font-weight: 600;
+	padding: 4px 12px;
+	color: var(--ax-fg);
+	background: var(--ax-card2);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	cursor: pointer;
+}
+.cbi-filebrowser {
+	display: none;
+	margin-top: 6px;
+	padding: 8px;
+	background: var(--ax-card2);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	font-family: var(--ax-mono);
+	font-size: 11.5px;
+}
+.cbi-filebrowser.open { display: block; }
+.cbi-filebrowser ul {
+	list-style: none;
+	margin: 0 0 8px;
+	padding: 0;
+	max-height: 220px;
+	overflow-y: auto;
+}
+.cbi-filebrowser li {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 3px 8px;
+	border-radius: 2px;
+	cursor: pointer;
+	overflow-wrap: anywhere;
+}
+.cbi-filebrowser li:hover { background: var(--ax-accent-dim); }
+.cbi-filebrowser img { width: 14px; height: 14px; flex: none; }
+.cbi-filebrowser .right > * { margin-left: 6px; }
+
+/* uci changes modal - ins/del/var diff colors (browser defaults are
+   underline/strike with no color, unreadable on dark) */
+.uci-change-list, .uci-change-legend {
+	font-family: var(--ax-mono);
+	font-size: 11.5px;
+	line-height: 1.7;
+}
+.uci-change-list ins, .uci-change-legend ins,
+.uci-change-list del, .uci-change-legend del,
+.uci-change-list var, .uci-change-legend var {
+	display: block;
+	padding: 1px 8px;
+	border-radius: 2px;
+	text-decoration: none;
+	font-style: normal;
+	overflow-wrap: anywhere;
+}
+.uci-change-list ins, .uci-change-legend ins {
+	background: color-mix(in srgb, var(--ax-ok) 14%, transparent);
+	color: var(--ax-ok);
+}
+.uci-change-list del, .uci-change-legend del {
+	background: color-mix(in srgb, var(--ax-err) 13%, transparent);
+	color: var(--ax-err);
+	text-decoration: line-through;
+}
+.uci-change-list var, .uci-change-legend var {
+	background: var(--ax-card2);
+	color: var(--ax-fg);
+	border: 1px solid var(--ax-border);
+	margin: 2px 0;
+	padding: 2px 8px;
+}
+.uci-change-list var ins, .uci-change-list var del { display: inline; padding: 0 4px; }
+.uci-change-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 6px; }
+.uci-change-legend-label { display: flex; align-items: center; gap: 6px; color: var(--ax-muted); }
+.uci-change-legend-label ins, .uci-change-legend-label del,
+.uci-change-legend-label var { display: inline-block; min-width: 16px; margin: 0; }
+
+/* generic control rows (diagnostics, add-item, …) */
+.control-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* tooltip severity variants (ui.js copies data-tooltip-style onto the tip) */
+.cbi-tooltip.error { border-left: 3px solid var(--ax-err); }
+.cbi-tooltip.warning { border-left: 3px solid var(--ax-warn); }
+.cbi-tooltip.success { border-left: 3px solid var(--ax-ok); }
+
+/* ========================= node tab strips ========================== */
+/* menu-node children rendered by apex.js (deep pages: firewall zones/
+   rules, adblock sub-pages, nlbw views, …) */
+
+#ax-nodetabs { margin: 0 0 14px; }
+.ax-nodetab-strip {
+	display: flex;
+	gap: 2px;
+	margin: 0 0 2px;
+	padding: 0;
+	list-style: none;
+	overflow-x: auto;
+	border-bottom: 1px solid var(--ax-border);
+}
+.ax-nodetab-strip li { flex: none; }
+.ax-nodetab-strip li a {
+	display: block;
+	padding: 6px 13px;
+	color: var(--ax-muted);
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.ax-nodetab-strip li a:hover { color: var(--ax-fg); text-decoration: none; }
+.ax-nodetab-strip li.ax-active a {
+	color: var(--ax-accent-text);
+	box-shadow: inset 0 -2px 0 var(--ax-accent);
+}
+
+/* =============================== tabs =============================== */
+
+ul.cbi-tabmenu, .cbi-tabmenu {
+	display: flex;
+	gap: 2px;
+	margin: 0 0 -1px;
+	padding: 0;
+	list-style: none;
+	overflow-x: auto;
+	border-bottom: 1px solid var(--ax-border);
+}
+.cbi-tabmenu li {
+	flex: none;
+	border: 1px solid transparent;
+	border-bottom: 0;
+	border-radius: var(--ax-r) var(--ax-r) 0 0;
+}
+.cbi-tabmenu li a {
+	display: block;
+	padding: 6px 13px;
+	color: var(--ax-muted);
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.cbi-tabmenu li a:hover { color: var(--ax-fg); text-decoration: none; }
+.cbi-tabmenu li.cbi-tab {
+	background: var(--ax-card);
+	border-color: var(--ax-border);
+}
+.cbi-tabmenu li.cbi-tab a {
+	color: var(--ax-accent-text);
+	box-shadow: inset 0 2px 0 var(--ax-accent);
+}
+/* NOTE: in the ui.js tab system, li.cbi-tab-disabled is the NORMAL
+   inactive tab (not a disabled control) - style it as such */
+.cbi-tabmenu li.cbi-tab-disabled a:hover { color: var(--ax-fg); }
+
+/* hide tab PANES only - the ui.js tab MENU items are li[data-tab] and
+   must stay visible (hiding them collapsed every map-level tab strip) */
+[data-tab]:not(li) { display: none; }
+[data-tab][data-tab-active="true"]:not(li) { display: block; }
+
+.cbi-tab-descr {
+	color: var(--ax-muted);
+	font-size: 12px;
+	margin: 10px 0;
+}
+
+/* ============================== tables ============================== */
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+/* luci-base div-tables */
+.table {
+	display: table;
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+.tr { display: table-row; }
+.th, .td { display: table-cell; }
+
+.th, th {
+	padding: 6px 10px;
+	text-align: left;
+	font-family: var(--ax-mono);
+	font-size: 10.5px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--ax-muted);
+	border-bottom: 1px solid var(--ax-border-strong);
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.td, td {
+	padding: 5px 10px;
+	border-top: 1px solid var(--ax-border);
+	vertical-align: middle;
+	font-variant-numeric: tabular-nums;
+}
+
+.tr:hover > .td, tbody tr:hover > td { background: var(--ax-accent-dim); }
+.tr.table-titles:hover > .th, .tr.cbi-section-table-titles:hover > .th { background: none; }
+
+.tr.placeholder > .td, td.placeholder {
+	color: var(--ax-muted);
+	font-style: italic;
+	text-align: center;
+	padding: 14px;
+}
+/* empty-section placeholder cells get colSpan from apex.js (CSS cannot
+   span a real <td> across a width:90% column template) */
+
+.cbi-rowstyle-2 > .td, .cbi-rowstyle-2 > td { background: var(--ax-card2); }
+
+.td.cbi-section-actions, .cbi-section-table .cbi-button {
+	white-space: nowrap;
+}
+.td.cbi-section-actions > * { display: inline-flex; gap: 6px; }
+
+/* ========================= status components ======================== */
+
+.ifacebox {
+	display: inline-flex;
+	flex-direction: column;
+	min-width: 104px;
+	margin: 2px;
+	background: var(--ax-card2);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	line-height: 1.3;
+}
+.ifacebox-head {
+	padding: 3px 8px;
+	border-bottom: 1px solid var(--ax-border);
+	font-family: var(--ax-mono);
+	font-size: 10.5px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--ax-muted);
+}
+.ifacebox-head.active {
+	background: var(--ax-accent-dim);
+	color: var(--ax-accent-text);
+}
+/* zone strips arrive with inline pastel background-color - dark ink */
+.ifacebox-head[style*="background"] { color: #16191d; }
+.ifacebox-head[style*="background"] * { color: inherit; }
+.ifacebox-body {
+	padding: 6px 8px;
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+	min-width: max-content;
+}
+.ifacebox-body img { float: left; margin-right: 6px; }
+
+.cbi-progressbar {
+	position: relative;
+	/* In the mobile card layout the table cell is display:flex, where a block
+	   without a width shrinks to its border box (2px, value text clipped away).
+	   flex-basis is the minimum before the bar wraps below its data-title label;
+	   it grows to fill the line. Ignored where the parent is not a flex container. */
+	flex: 1 1 8rem;
+	height: 16px;
+	margin: 3px 0;
+	background: var(--ax-input-bg);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: 2px;
+	overflow: hidden;
+}
+.cbi-progressbar > div {
+	height: 100%;
+	background: var(--ax-accent);
+	opacity: 0.55;
+	transition: width 0.3s;
+}
+.cbi-progressbar::after {
+	content: attr(title);
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 6px;
+	font-family: var(--ax-mono);
+	font-size: 9.5px;
+	color: var(--ax-fg);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* zone colors arrive as inline pastel background-color - force dark ink
+   on those; badges without an inline background keep the theme fg */
+/* realtime/channel graphs are inline SVGs styled for any background -
+   frame them on the card surface (a white block here was wrong: axis
+   labels are drawn theme-neutral and read fine on dark) */
+#view svg, #view embed[type="image/svg+xml"], #view object[type="image/svg+xml"] {
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	max-width: 100%;
+}
+
+.zonebadge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 2px;
+	font-family: var(--ax-mono);
+	font-size: 11px;
+	white-space: nowrap;
+}
+.zonebadge[style*="background"] { color: #16191d; }
+.zonebadge[style*="background"] a, .zonebadge[style*="background"] strong,
+.zonebadge[style*="background"] em { color: inherit; }
+.zonebadge > em { font-style: normal; }
+.zonebadge:not([style*="background"]) > em { color: var(--ax-muted); }
+
+/* ---------- status cards: header + System widgets ---------- */
+
+/* status/index.js wraps every status include in
+   .cbi-section > .cbi-title > h3 (flex, with the Hide/Show label as its last child);
+   the card title gets the same look as every other card title. The label
+   keeps the upstream box (inline min-width / centring) and is only re-skinned as a
+   text link. */
+.cbi-section > .cbi-title > h3 {
+	align-items: center;
+	margin: 0 0 10px;
+	font-size: 17px;
+	font-weight: 650;
+	letter-spacing: -0.01em;
+	color: var(--ax-fg);
+}
+.cbi-section > .cbi-title > h3 > .label[data-clickable] {
+	padding: 2px 0;
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0;
+	color: var(--ax-fg);
+	cursor: pointer;
+}
+.cbi-section > .cbi-title > h3 > .label[data-clickable]:hover { text-decoration: underline; }
+
+/* System card widgets. Markup comes from the CleanWRT firmware patch to
+   view/status/include/10_system.js (rendered only while this theme is active);
+   without it the stock table is shown and styled by the table rules above. */
+.ax-sys {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.ax-sys-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+	gap: 12px;
+}
+.ax-sys-w {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	min-width: 0;
+	padding: 14px;
+	background: var(--ax-bg);
+	border: 1px solid var(--ax-border);
+	border-radius: var(--ax-r);
+}
+.ax-sys-top {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 26px;
+}
+.ax-sys-ic {
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	color: var(--ax-accent-text);
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border);
+	border-radius: var(--ax-r);
+}
+/* undo the generic "#view svg" graph frame (realtime / channel graphs) for icons */
+#view .ax-sys-ic svg {
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+.ax-sys-t {
+	margin: 0;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ax-muted);
+}
+.ax-sys-dl { margin: 0; }
+.ax-sys-r {
+	display: flex;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 9px 0;
+	border-bottom: 1px solid var(--ax-border);
+	font-size: 13px;
+}
+.ax-sys-r:last-child { border-bottom: 0; }
+.ax-sys-r dt {
+	flex: none;
+	margin: 0;
+	color: var(--ax-muted);
+}
+.ax-sys-r dd {
+	min-width: 0;
+	margin: 0;
+	font-family: var(--ax-mono);
+	font-size: 12.5px;
+	font-weight: 500;
+	text-align: right;
+	overflow-wrap: anywhere;
+	color: var(--ax-fg);
+}
+.ax-sys-up {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 8px;
+	margin: 0;
+}
+.ax-sys-up strong {
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: -0.025em;
+	font-variant-numeric: tabular-nums;
+}
+.ax-sys-up span {
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	color: var(--ax-muted);
+}
+.ax-sys-ld {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.ax-sys-lr {
+	display: grid;
+	grid-template-columns: 52px 1fr 48px;
+	gap: 10px;
+	align-items: center;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	color: var(--ax-muted);
+}
+.ax-sys-lv {
+	font-size: 13px;
+	font-weight: 600;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	color: var(--ax-fg);
+}
+/* meter: unfilled track >= 3:1 (--ax-track, same token as range sliders); the
+   fill is the load per CPU, the exact load is always printed next to it */
+.ax-sys-bar {
+	position: relative;
+	display: block;
+	height: 12px;
+	overflow: hidden;
+	background: var(--ax-input-bg);
+	border: 1px solid var(--ax-track);
+	border-radius: 2px;
+}
+.ax-sys-bar > i {
+	position: absolute;
+	inset: 0 auto 0 0;
+	min-width: 2px;
+	background: var(--ax-accent);
+	transition: width 0.3s;
+}
+.ax-sys-na { margin: 0; color: var(--ax-muted); }
+@media (forced-colors: active) {
+	.ax-sys-bar > i { forced-color-adjust: none; background: Highlight; }
+}
+
+/* ---------- status: Modem Info widgets ---------- */
+
+/* Markup: luci-app-qmodem 11_modem.js via the CleanWRT feed patch (rendered only
+   while this theme is active; otherwise the stock table). Reuses the ax-sys-*
+   widget primitives above (widget, top, title, dl rows, meter). */
+.ax-mdm { display: flex; flex-direction: column; gap: 12px; }
+.ax-mdm + .ax-mdm { margin-top: 12px; }
+.ax-mdm .ax-sys-top { justify-content: space-between; }
+.ax-sys-t abbr { text-decoration: none; }
+.ax-mdm-net { font-weight: 400; }
+.ax-mdm-chip, .ax-mdm-q {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 2px 8px;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--ax-accent-text);
+	white-space: nowrap;
+	background: var(--ax-card);
+	border-radius: var(--ax-r);
+}
+.ax-mdm-chip {
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	border: 1px solid var(--ax-accent-text);
+}
+.ax-mdm-chip > i {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: currentColor;
+}
+.ax-mdm-chip-off { color: var(--ax-warn); border-color: var(--ax-warn); }
+.ax-mdm-q { border: 1px solid var(--ax-border); }
+.ax-mdm-sig {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+	gap: 12px;
+}
+.ax-mdm-big {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 6px;
+	margin: 0;
+}
+.ax-mdm-big strong {
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: -0.025em;
+	font-variant-numeric: tabular-nums;
+}
+.ax-mdm-big span {
+	font-family: var(--ax-mono);
+	font-size: 13px;
+	color: var(--ax-muted);
+}
+.ax-mdm-scale {
+	display: flex;
+	justify-content: space-between;
+	margin-top: -4px;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	color: var(--ax-muted);
+}
+
+/* ---------- status: Memory + Storage widgets ---------- */
+
+/* Markup: luci-mod-status 20_memory.js / 25_storage.js via the CleanWRT feed patches
+   (rendered only while this theme is active; otherwise the stock tables). Reuses the
+   ax-sys-* widget primitives above (widget, top, icon, title, meter). The widgets
+   wrap and the last row grows to fill: 3 + 2 for the five memory metrics, one column
+   on a phone, however many of the optional metrics (cached / buffered / swap) or
+   extra mount points exist. */
+.ax-mem {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+.ax-mem > .ax-sys-w { flex: 1 1 18rem; }
+.ax-mem-pct {
+	margin-left: auto;
+	padding: 3px 8px;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+	font-variant-numeric: tabular-nums;
+	color: var(--ax-accent-text);
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border);
+	border-radius: var(--ax-r);
+}
+.ax-mem-big {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 8px;
+	margin: 0;
+}
+.ax-mem-big strong {
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: -0.025em;
+	font-variant-numeric: tabular-nums;
+}
+.ax-mem-big span {
+	font-family: var(--ax-mono);
+	font-size: 13px;
+	color: var(--ax-muted);
+}
+.ax-mem-of {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	margin: 0;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	color: var(--ax-muted);
+}
+.ax-mem-of b { font-weight: 600; color: var(--ax-fg); }
+.ax-mem-stats {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+	margin: 0;
+	padding-top: 10px;
+	border-top: 1px solid var(--ax-border);
+}
+.ax-mem-stats dt {
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	color: var(--ax-muted);
+}
+.ax-mem-stats dd {
+	margin: 3px 0 0;
+	font-size: 13px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	color: var(--ax-fg);
+	overflow-wrap: anywhere;
+}
+.ax-mem-mnt {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	font-family: var(--ax-mono);
+	font-size: 12px;
+	color: var(--ax-muted);
+	overflow-wrap: anywhere;
+}
+.ax-mem-mnt > i {
+	flex: none;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--ax-accent);
+}
+
+/* ==================== alerts, notifications, errors ================= */
+
+.alert-message {
+	position: relative;
+	margin: 0 0 12px;
+	padding: 10px 12px;
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border-strong);
+	border-left: 3px solid var(--ax-muted);
+	border-radius: var(--ax-r);
+	font-size: 12.5px;
+}
+.alert-message.error, .alert-message.danger { border-left-color: var(--ax-err); }
+.alert-message.warning { border-left-color: var(--ax-warn); }
+.alert-message.success { border-left-color: var(--ax-ok); }
+.alert-message.notice, .alert-message.info { border-left-color: var(--ax-accent); }
+.alert-message > h4 { margin-bottom: 4px; }
+.alert-message .btn { margin-left: 8px; }
+/* error payloads arrive as unwrapped pre/mono text - never let a
+   notification stretch the page (seen: 2942px-wide cloudflared error) */
+.alert-message { min-width: 0; overflow-wrap: anywhere; }
+.alert-message pre, .alert-message [style*="white-space"] {
+	white-space: pre-wrap !important;
+	overflow-wrap: anywhere;
+	max-width: 100%;
+}
+
+.fade-in { animation: ax-fade-in 0.2s ease-out; }
+.fade-out { opacity: 0; transition: opacity 0.2s; }
+@keyframes ax-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.error500 {
+	font-family: var(--ax-mono);
+	font-size: 11.5px;
+	white-space: pre-wrap;
+	background: var(--ax-card);
+	border: 1px solid var(--ax-err);
+	border-radius: var(--ax-r);
+	padding: 12px;
+}
+.exception .message { font-weight: 600; color: var(--ax-err); }
+.exception .context { overflow-x: auto; }
+
+/* ========================== modal & tooltip ========================= */
+
+#modal_overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	background: rgba(4, 6, 8, 0.66);
+	overflow-y: auto;
+	padding: 5vh 16px;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.15s;
+}
+body.modal-overlay-active { overflow: hidden; }
+body.modal-overlay-active #modal_overlay {
+	opacity: 1;
+	visibility: visible;
+}
+
+.modal {
+	width: min(680px, 100%);
+	margin: 0 auto;
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	box-shadow: var(--ax-shadow);
+	padding: 16px;
+}
+.modal > h4 {
+	margin: -16px -16px 12px;
+	padding: 11px 16px;
+	border-bottom: 1px solid var(--ax-border);
+	font-size: 13px;
+}
+.modal .right { margin-top: 14px; }
+.modal .spinning { display: block; padding: 8px 8px 8px 30px; }
+
+/* hidden by default: ui.js toggles the global tooltip via inline
+   style.opacity; inline tooltips (e.g. port status) open on :hover */
+.cbi-tooltip {
+	position: absolute;
+	left: -2000px;
+	z-index: 3000;
+	max-width: 320px;
+	padding: 6px 9px;
+	background: var(--ax-card2);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	box-shadow: var(--ax-shadow);
+	font-size: 11.5px;
+	opacity: 0;
+	transition: opacity 0.15s;
+	pointer-events: none;
+}
+
+.cbi-tooltip-container { position: relative; cursor: help; }
+
+/* Inline tooltips are taken out of layout until opened. Hiding them only with
+   left:-2000px/opacity:0 leaves their boxes laid out (70-175 px tall below the
+   card), and an invisible box still enlarges the scrollable overflow of an
+   overflow:auto ancestor - .cbi-section is one - which showed a phantom
+   vertical scrollbar (e.g. Status > Port status). The global ui.js tooltip is a
+   direct child of <body>, not of a container, so it is unaffected. */
+.cbi-tooltip-container > .cbi-tooltip { display: none; }
+.cbi-tooltip-container:hover > .cbi-tooltip,
+.cbi-tooltip-container:focus-within > .cbi-tooltip {
+	display: block;
+	/* natural width (capped by max-width): without this the tooltip shrinks to
+	   its small trigger and wraps into a very tall column */
+	width: max-content;
+	left: 0;
+	top: 100%;
+	opacity: 1;
+	z-index: 3100;
+}
+
+/* ============================ login page ============================ */
+
+body.ax-guest #ax-layout { min-height: calc(100vh - var(--ax-topbar-h) - 34px); }
+
+.ax-login {
+	display: grid;
+	place-items: center;
+	min-height: calc(100vh - var(--ax-topbar-h) - 130px);
+	padding: 28px 16px;
+}
+
+.ax-login-card {
+	width: min(370px, 100%);
+	background: var(--ax-card);
+	border: 1px solid var(--ax-border-strong);
+	border-radius: var(--ax-r);
+	padding: 26px 24px;
+}
+.ax-brand-login { margin-bottom: 16px; }
+.ax-login-card h2 {
+	font-size: 15px;
+	margin-bottom: 4px;
+	border: 0;
+	padding: 0;
+}
+.ax-login-hint {
+	color: var(--ax-muted);
+	font-size: 12px;
+	margin: 0 0 16px;
+}
+
+.ax-field { display: block; margin-bottom: 12px; }
+.ax-field > span {
+	display: block;
+	margin-bottom: 4px;
+	font-family: var(--ax-mono);
+	font-size: 10.5px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--ax-muted);
+}
+.ax-field input { width: 100%; padding: 7px 9px; }
+
+.ax-login-btn {
+	width: 100%;
+	margin-top: 6px;
+	padding: 8px 14px;
+	font-size: 12.5px;
+}
+
+/* ============================ responsive ============================ */
+
+@media (max-width: 1023px) {
+	#ax-menu-toggle { display: flex; }
+	.ax-brand-top { display: inline-flex; }
+	.ax-path { display: none; }
+	.ax-account-logout { min-height: 44px; }
+	.ax-theme-toggle { width: 44px; height: 44px; border-color: transparent; }
+	label:has(> input[type="radio"]) { min-height: 48px; }
+	input[type="range"] { height: 44px; }
+	/* WCAG 2.2 target size (SC 2.5.8 asks for >= 24 px; the native checkbox was
+	   14 px) and a comfortable height for single-line controls */
+	input[type="checkbox"] { width: 24px; height: 24px; }
+	input[type="text"], input[type="password"], input[type="number"], input[type="email"],
+	input[type="url"], input[type="search"], input[type="date"], input[type="time"],
+	input[type="datetime-local"], select, .cbi-dropdown { min-height: 40px; }
+	/* centre the closed preview only: an open list is a scroll box */
+	.cbi-dropdown:not([open]) > ul { align-content: center; }
+
+	#ax-sidebar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		height: 100vh;
+		width: min(280px, 84vw);
+		z-index: 1500;
+		transform: translateX(-103%);
+		transition: transform 0.18s ease-out;
+		border-right: 1px solid var(--ax-border-strong);
+	}
+	body.ax-drawer-open #ax-sidebar {
+		transform: none;
+		box-shadow: var(--ax-shadow);
+	}
+
+	#ax-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 1400;
+		background: rgba(4, 6, 8, 0.55);
+	}
+	body:not(.ax-drawer-open) #ax-backdrop { display: none; }
+	body.ax-drawer-open #ax-backdrop { display: block; }
+
+	/* last-resort containment: anything still wider than the viewport
+	   scrolls inside the content area, never the page body */
+	#maincontent { padding: 14px 14px 90px; overflow-x: auto; }
+	.cbi-page-actions { margin: 14px -14px 0; padding: 10px 14px; }
+}
+
+@media (max-width: 700px) {
+	/* Tables become stacked cards: cells show their data-title (set by
+	   both the ui.js table renderer and form.js CBI sections) as an
+	   inline label - squeezed 8-column layouts are unusable at 390px.
+	   Descendant selectors are required: ui.js emits div.table > div.tr,
+	   but form.js emits a real <table class="table"> with an implicit
+	   tbody between .table and .tr. Plain tables without the .table
+	   class keep scrolling inside .cbi-section (overflow-x: auto). */
+	.table, .table tbody { display: block; }
+	.table .tr { display: block; padding: 5px 0; border-top: 1px solid var(--ax-border-strong); }
+	.table .tr.table-titles, .table .tr.cbi-section-table-titles,
+	.table .tr.cbi-section-table-descr, .table .tr.cbi-section-table-filter { display: none; }
+	.table .tr > .td, .table .tr > .th {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 4px 10px;
+		width: 100%;
+		padding: 3px 2px;
+		border: 0;
+		text-align: left !important;
+		overflow-wrap: anywhere;
+	}
+
+	/* app-served images (vnStat PNG graphs, …) scale down instead of
+	   clipping at the card edge */
+	#view img { max-width: 100%; height: auto; }
+	.table .tr > .td[data-title]::before {
+		content: attr(data-title);
+		flex: 0 0 38%;
+		min-width: 0;
+		font-family: var(--ax-mono);
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--ax-muted);
+		overflow-wrap: anywhere;
+	}
+	.table .tr.placeholder { display: block; }
+	.table .tr.placeholder > .td { justify-content: center; }
+	.table .tr > .td.cbi-section-actions { justify-content: flex-end; }
+
+	/* ifacebox: shrink to fit stacked cards; single-word labels wrap
+	   whole, never per-character */
+	.ifacebox { min-width: 0; max-width: 100%; }
+	.ifacebox-body { min-width: 0; overflow-wrap: normal; word-break: normal; }
+	.td.cbi-section-actions > * { flex-wrap: wrap; min-width: 0; }
+	table:not(.table) { min-width: 480px; }
+
+	.cbi-value {
+		flex-direction: column;
+		gap: 4px;
+	}
+	.cbi-value-title {
+		flex: none;
+		padding-top: 0;
+		font-family: var(--ax-mono);
+		font-size: 10.5px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		color: var(--ax-muted);
+	}
+	.cbi-value-field { width: 100%; }
+
+	input[type="text"], input[type="password"], input[type="number"],
+	input[type="email"], input[type="url"], input[type="search"],
+	select, .cbi-dropdown {
+		width: 100%;
+		min-width: 0;
+	}
+
+	.cbi-page-actions { justify-content: stretch; }
+	.cbi-page-actions .cbi-button-apply,
+	.cbi-page-actions .cbi-button-save { flex: 1; }
+	.cbi-page-actions .btn, .cbi-page-actions .cbi-button { min-height: 44px; }
+
+	.modal { padding: 13px; }
+	.modal > h4 { margin: -13px -13px 10px; padding: 10px 13px; }
+}
+
+/* ============================== print =============================== */
+
+@media print {
+	#ax-topbar, #ax-sidebar, #ax-backdrop, #ax-footer,
+	.cbi-page-actions, #ax-menu-toggle { display: none !important; }
+	#maincontent { padding: 0; }
+	body { background: #fff; color: #000; }
+}

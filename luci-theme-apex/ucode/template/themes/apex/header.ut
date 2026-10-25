@@ -1,0 +1,121 @@
+{#
+ luci-theme-apex - header.ut
+ Copyright (C) 2026 Pr0Luci
+ SPDX-License-Identifier: GPL-2.0-only
+
+ Implements the LuCI ucode theme template contract:
+ luci-base renders themes/apex/header, then injects luci.js + the `L`
+ bootstrap, then the page/view content, then themes/apex/footer.
+ This template opens the chrome (topbar, sidebar skeleton, #maincontent)
+ and leaves the content container open for footer.ut to close.
+
+ DOM hooks required by luci-base ui.js and provided here:
+   #maincontent (notification banners), #indicators (status chips).
+ #view is emitted by luci-base view.ut; #modal_overlay + .cbi-tooltip are
+ created by ui.js itself. The nav tree inside #ax-navtree is rendered
+ client-side by apex.js via the LuCI ui.menu API.
+
+ Include variable `blank_page` (standard LuCI theme convention, passed by
+ sysauth): emit only <head> + <body> - no topbar/sidebar/#maincontent - and
+ load login.css/login.js instead of cascade.css/apex.js. The page template
+ then supplies its own chrome; footer.ut closes the document.
+-#}
+{%
+	import { getuid, getspnam } from 'luci.core';
+
+	const boardinfo = ubus.call('system', 'board') ?? {};
+	const hostname  = boardinfo.hostname ?? 'CleanWRT';
+	const authed    = ctx.authsession != null;
+	const blank     = !!blank_page;
+	/* the requested node's title is only shown to authenticated sessions -
+	   on guest pages it would leak the page the visitor tried to reach */
+	const nodetitle = authed ? striptags(dispatched?.title ?? '') : '';
+	const doctitle  = blank ? `${_('Authorization Required')} - ${hostname}`
+	                : nodetitle ? `${nodetitle} - ${hostname}` : hostname;
+	/* the page actually dispatched, not the URL typed: the bare /cgi-bin/luci/ URL
+	   (where the post-login redirect lands) has an empty request_path although
+	   it serves admin/status/overview - ctx.path is what apex.js also uses
+	   for the active nav trail (L.env.dispatchpath) */
+	const pagepath  = join('/', ctx.path ?? ctx.request_path ?? []);
+%}
+<!DOCTYPE html>
+<html lang="{{ dispatcher.lang }}">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark light" />
+	{% if (blank): %}<meta name="theme-color" content="#0b1f1d" />{% endif %}
+	<title>{{ entityencode(doctitle) }}</title>
+	<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Crect%20width='16'%20height='16'%20rx='3'%20fill='%2314b8a6'/%3E%3Ctext%20x='8'%20y='12'%20text-anchor='middle'%20font-family='monospace'%20font-weight='bold'%20font-size='11'%20fill='%23041815'%3EC%3C/text%3E%3C/svg%3E" />
+	{# apply the stored light/dark choice before first paint (no wrong-theme flash);
+	   apex.js owns the toggle. No stored choice = follow the OS. #}
+	<script>(function(){try{var t=localStorage.getItem('ax-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
+	{% if (blank): %}
+	<link rel="preload" href="{{ media }}/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+	<link rel="preload" href="{{ media }}/fonts/jetbrains-mono-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+	<link rel="stylesheet" href="{{ media }}/login.css?v={{ pkgs_update_time }}" />
+	{% else %}
+	<link rel="stylesheet" href="{{ media }}/cascade.css" />
+	{% endif %}
+	{# luci.js (injected by luci-base right after this template) requires the
+	   String.prototype.format extension from cbi.js and the client i18n
+	   catalog - both must load first, synchronously. #}
+	<script src="{{ dispatcher.build_url('admin/translations', dispatcher.lang) }}?v={{ pkgs_update_time }}"></script>
+	<script src="{{ resource }}/cbi.js?v={{ pkgs_update_time }}"></script>
+	{% if (blank): %}
+	<script src="{{ media }}/login.js?v={{ pkgs_update_time }}" defer></script>
+	{% else %}
+	<script src="{{ media }}/apex.js" defer></script>
+	{% endif %}
+</head>
+<body class="{{ blank ? 'ax-guest al-login-page' : (authed ? 'ax-auth' : 'ax-guest') }}" data-page="{{ entityencode(pagepath) }}">
+{% if (!blank): %}
+
+<header id="ax-topbar">
+	{% if (authed): %}
+	<button id="ax-menu-toggle" type="button" aria-label="{{ _('Menu') }}" aria-expanded="false" aria-controls="ax-sidebar">
+		<span></span><span></span><span></span>
+	</button>
+	{% endif %}
+	<a class="ax-brand ax-brand-top" href="{{ authed ? dispatcher.build_url('admin') : dispatcher.build_url() }}">
+		<span class="ax-mark" aria-hidden="true">C</span>
+		<span class="ax-word">Clean<b>WRT</b></span>
+	</a>
+	{% if (authed): %}
+	<code class="ax-path" aria-hidden="true">{{ entityencode(pagepath) }}</code>
+	{% endif %}
+	<span id="indicators"></span>
+	<button id="ax-theme-toggle" class="ax-theme-toggle" type="button" hidden
+		data-label-light="{{ _('Switch to light theme') }}" data-label-dark="{{ _('Switch to dark theme') }}">
+		<svg class="ax-ic-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+		<svg class="ax-ic-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+	</button>
+</header>
+
+<div id="ax-layout">
+	{% if (authed): %}
+	<nav id="ax-sidebar" aria-label="{{ _('Navigation') }}">
+		<a class="ax-brand ax-brand-side" href="{{ dispatcher.build_url('admin') }}">
+			<span class="ax-mark" aria-hidden="true">C</span>
+			<span class="ax-word">Clean<b>WRT</b></span>
+		</a>
+		<div id="ax-navtree"></div>
+		<div class="ax-account">
+			<span class="ax-account-label">{{ _('Signed in as') }}</span>
+			{% if (ctx.authuser): %}<span class="ax-account-user">{{ entityencode(ctx.authuser) }}</span>{% endif %}
+			<a class="ax-account-logout" href="{{ dispatcher.build_url('admin/logout') }}">{{ _('Log out') }}</a>
+		</div>
+	</nav>
+	<div id="ax-backdrop"></div>
+	{% endif %}
+
+	<main id="maincontent">
+		{# root-password warning - same luci.core check the stock header uses #}
+		{% if (authed && getuid() == 0 && getspnam('root')?.pwdp === ''): %}
+		<div class="alert-message warning">
+			<h4>{{ _('No password set!') }}</h4>
+			<p>{{ _('There is no password set on this router. Please configure a root password to protect the web interface.') }}</p>
+			<a class="btn" href="{{ dispatcher.build_url('admin/system/admin') }}">{{ _('Go to password configuration...') }}</a>
+		</div>
+		{% endif %}
+{% endif %}
