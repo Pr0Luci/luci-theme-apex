@@ -1,0 +1,30 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check luci-theme-apex/htdocs/luci-static/apex/apex.js
+          node --check luci-theme-apex/htdocs/luci-static/apex/login.js
+      - name: CSS braces balance
+        run: |
+          for f in luci-theme-apex/htdocs/luci-static/apex/*.css; do
+            python3 - "$f" <<PY
+          import re, sys
+          s = re.sub(r"/\*.*?\*/", "", open(sys.argv[1], encoding="utf-8").read(), flags=re.S)
+          assert s.count("{") == s.count("}"), sys.argv[1]
+          PY
+          done
