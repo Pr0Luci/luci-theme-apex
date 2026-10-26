@@ -1,5 +1,7 @@
 # luci-theme-apex
 
+Part of [CleanWRT](https://github.com/Pr0Luci/cleanwrt-aw1000). Documentation: [The Apex theme](https://pr0luci.github.io/cleanwrt-aw1000/docs/theme/).
+
 A LuCI 25.12 theme for the Arcadyan AW1000: dense and technical, dark by default with an automatic
 light mode (and a manual toggle), a sidebar with a mobile drawer, and its own login page. The accent
 is teal (`#14b8a6`). A 390 px phone viewport is a first-class target.
