@@ -2087,3 +2087,6 @@ body.ax-guest #ax-layout { min-height: calc(100vh - var(--ax-topbar-h) - 34px); 
 	#maincontent { padding: 0; }
 	body { background: #fff; color: #000; }
 }
+
+/* the AWvoice page packs a lot into one view: keep its text at the compact size */
+.avp { font-size: 12px; }
